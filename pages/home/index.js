@@ -3,7 +3,8 @@ import { Flip } from 'gsap/Flip'
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Draggable, InertiaPlugin, SplitText, TextPlugin } from 'gsap/all'
-import { setupResizeListener } from '../utility/run-line'
+// import { setupResizeListener } from '../utility/run-line'
+import { setupTextPathAnimations } from '../utility/run-line.js'
 import { initializeVolumeSlider } from './interface'
 import { initializeCardHoverEffect } from './slider-team'
 
@@ -36,6 +37,13 @@ document.addEventListener('DOMContentLoaded', event => {
 		Draggable,
 		InertiaPlugin
 	)
+
+	//add runlines animation
+	setupTextPathAnimations([
+		{ textSelector: '.line-text', pathClass: 'hero-line-01', idSuffix: '1' },
+		{ textSelector: '.line-text-02', pathClass: 'hero-line-02', idSuffix: '2' },
+		{ textSelector: '.line-text-03', pathClass: 'hero-line-03', idSuffix: '3' }
+	  ])
 
 	// Обработчик события загрузки
 	document.onreadystatechange = function () {
@@ -648,16 +656,16 @@ document.addEventListener('DOMContentLoaded', event => {
 		}
 	}
 
-	// lines text run animation
-	const animationConfig = [
-		{ textSelector: '.line-text', pathSelector: '.hero-line-01' },
-		{ textSelector: '.line-text-02', pathSelector: '.hero-line-02' },
-		{ textSelector: '.line-text-03', pathSelector: '.hero-line-03' },
-		{ textSelector: '.line-text-r-01', pathSelector: '.reviews-01-path' },
-		{ textSelector: '.line-text-r-02', pathSelector: '.reviews-02-path' },
-		// Можно добавлять больше конфигураций
-	]
-	setupResizeListener(animationConfig)
+	// // lines text run animation
+	// const animationConfig = [
+	// 	{ textSelector: '.line-text', pathSelector: '.hero-line-01' },
+	// 	{ textSelector: '.line-text-02', pathSelector: '.hero-line-02' },
+	// 	{ textSelector: '.line-text-03', pathSelector: '.hero-line-03' },
+	// 	{ textSelector: '.line-text-r-01', pathSelector: '.reviews-01-path' },
+	// 	{ textSelector: '.line-text-r-02', pathSelector: '.reviews-02-path' },
+	// 	// Можно добавлять больше конфигураций
+	// ]
+	// setupResizeListener(animationConfig)
 
 	// Interface animate
 	const InterfaceTimeLine = gsap.timeline({
