@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', event => {
 
 			animateTextOnPath('.line-text', '.hero-line-01', 20, 0.3, 1, 0, 0.5)
 			animateTextOnPath('.line-text-02', '.hero-line-02', 20, 0.3, 1, 0, 0.5)
+			
 			const aboutCardsTl = gsap.timeline({ paused: true })
 			aboutCardsTl.from('[gapsy-animate="about-01"]', {
 				opacity: 0,
@@ -180,7 +181,6 @@ document.addEventListener('DOMContentLoaded', event => {
 			)
 
 			// main timeline
-
 			const heroAboutTimeLine = gsap.timeline({})
 			heroAboutTimeLine.from('.section_about-hero [gapsy-animate="h1-title"]', {
 				y: '30%',
@@ -211,7 +211,6 @@ document.addEventListener('DOMContentLoaded', event => {
 			)
 
 			// benefits cards
-
 			const benefitsCardsTl = gsap.timeline({
 				paused: true,
 			})

@@ -15,6 +15,7 @@ module.exports = {
 		'ai-avatar': './pages/ai-avatar/index.js',
 		'ai-eye': './pages/ai-eye/index.js',
 		'ai-compress': './pages/ai-compress/index.js',
+		empty: './pages/empty/index.js',
 	},
 	output: {
 		path: path.join(__dirname, '/build'),
