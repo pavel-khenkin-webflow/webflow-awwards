@@ -16,6 +16,7 @@ module.exports = {
 		'ai-eye': './pages/ai-eye/index.js',
 		'ai-compress': './pages/ai-compress/index.js',
 		empty: './pages/empty/index.js',
+		contact: './pages/contact/index.js',
 	},
 	output: {
 		path: path.join(__dirname, '/build'),

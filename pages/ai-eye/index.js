@@ -149,41 +149,19 @@ document.addEventListener('DOMContentLoaded', event => {
 				},
 				'<'
 			)
-			// OTHER PRODUCTS SECTION
-			const otherProductsTitleSplit = new SplitText(
-				"[da='other-products-title']",
-				{
-					type: 'words, chars',
-				}
-			)
-			const otherSectionTl = gsap.timeline({
-				scrollTrigger: {
-					trigger: '.section_other-resources',
-					start: 'top center',
-					end: 'bottom bottom',
-				},
-			})
-			otherSectionTl.from(otherProductsTitleSplit.chars, {
-				duration: 0.3,
-				y: 100,
-				autoAlpha: 0,
-				stagger: 0.02,
-			})
-			otherSectionTl.from(
-				'.other-resources_card',
-				{
-					opacity: 0,
-					y: '50%',
-					duration: 0.6,
-					stagger: 0.1,
-				},
-				'<'
-			)
-			otherSectionTl.from('.other-resources_bot', {
-				opacity: 0,
-				y: '50%',
-				duration: 0.5,
-			})
 		}
 	}
+	//SWIPER
+	const swiper = new Swiper('.other-resources_slider', {
+		slidesPerView: 'auto',
+		spaceBetween: 30,
+		speed: 1200,
+		grabCursor: true,
+		freeMode: true,
+		// Navigation buttons
+		navigation: {
+			prevEl: '.other-resources_nav .navigation-prev',
+			nextEl: '.other-resources_nav .navigation-next',
+		},
+	})
 })

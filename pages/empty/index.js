@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	setTimeout(startDecay, 100);
 
 	const mouse = Mouse.create(render.canvas);
-	mouse.element.removeEventListener('wheel', mouse.mousewheel); // 🛑 отключаем scroll захват
+	mouse.element.removeEventListener('wheel', mouse.mousewheel); // отключаем scroll захват
 
 	const mouseConstraint = MouseConstraint.create(engine, {
 		mouse,
