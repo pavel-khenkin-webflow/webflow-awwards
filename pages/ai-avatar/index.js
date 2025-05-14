@@ -46,8 +46,7 @@ document.addEventListener('DOMContentLoaded', event => {
 			})
 			console.log('prelaoder finish!')
 			const animationConfig = [
-				{ textSelector: '.line-text', pathSelector: '.hero-line-01' },
-				// Можно добавлять больше конфигураций
+				{ textPathSelector: '.textpathTeam', startOffsetMovePercent: '-45.82%' },
 			]
 			setupResizeListener(animationConfig)
 			// HERO SECTION

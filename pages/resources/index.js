@@ -47,10 +47,10 @@ document.addEventListener('DOMContentLoaded', event => {
 				},
 			})
 			console.log('prelaoder finish!')
+
 			const animationConfig = [
-				{ textSelector: '.line-text', pathSelector: '.hero-line-01' },
-				{ textSelector: '.line-text-02', pathSelector: '.hero-line-02' },
-				// Можно добавлять больше конфигураций
+				{ textPathSelector: '.textpathTeamRev', startOffsetMovePercent: '-65.35%' },
+				{ textPathSelector: '.textpathTeam', startOffsetMovePercent: '-61.46%' }
 			]
 			setupResizeListener(animationConfig)
 			// Resources section

@@ -45,9 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	
 	// SVG путь с текстом (запускаем после загрузки DOM)
 	const animationConfig = [
-		{ textSelector: '.line-text', pathSelector: '.hero-line-01' },
-		{ textSelector: '.line-text-02', pathSelector: '.hero-line-02' },
-		{ textSelector: '.line-text-03', pathSelector: '.hero-line-03' },
+		{ textPathSelector: '.textpathBuildTeam', startOffsetMovePercent: '-126.51%' },
+		{ textPathSelector: '.textpathTeamBelieve', startOffsetMovePercent: '-119.28%' },
+		{ textPathSelector: '.textpathProblemSolve', startOffsetMovePercent: '-114.36%' }
 	]
 	setupResizeListener(animationConfig);
 

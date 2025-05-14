@@ -4,6 +4,7 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Draggable, InertiaPlugin, SplitText, TextPlugin } from 'gsap/all'
 import Matter from 'matter-js'
+import { setupResizeListener } from '../utility/run-line'
 
 gsap.registerPlugin(
 	Flip,
@@ -50,75 +51,86 @@ document.addEventListener('DOMContentLoaded', event => {
 				},
 			})
 			console.log('prelaoder finish!')
+
+			// lines text run animation
+			const animationConfig = [
+				{ textPathSelector: '.textpathTeam', startOffsetMovePercent: '-142.93%' },
+				{ textPathSelector: '.textpathInnovation', startOffsetMovePercent: '-142.83%' },
+				{ textPathSelector: '.textpathInnovation03', startOffsetMovePercent: '-56.76%' },
+				{ textPathSelector: '.textpathInnovationMobile', startOffsetMovePercent: '-118.42%' },
+				{ textPathSelector: '.textpathInnovation75', startOffsetMovePercent: '-120.21%' }
+			]
+
+			setupResizeListener(animationConfig);
 			// lines text run animation
 
-			function animateTextOnPath(
-				textSelector,
-				pathSelector,
-				duration = 20,
-				staggerEach = 0.3,
-				pathStart = 1,
-				pathEnd = 0,
-				initialProgress = 0.5
-			) {
-				const textElement = document.querySelector(textSelector)
-				const pathElement = document.querySelector(pathSelector)
+			// function animateTextOnPath(
+			// 	textSelector,
+			// 	pathSelector,
+			// 	duration = 20,
+			// 	staggerEach = 0.3,
+			// 	pathStart = 1,
+			// 	pathEnd = 0,
+			// 	initialProgress = 0.5
+			// ) {
+			// 	const textElement = document.querySelector(textSelector)
+			// 	const pathElement = document.querySelector(pathSelector)
 
-				// Разбиваем текст на слова
-				const words = new SplitText(textElement, { type: 'words' })
+			// 	// Разбиваем текст на слова
+			// 	const words = new SplitText(textElement, { type: 'words' })
 
-				// Создаем новый массив символов, включая пробелы
-				const newChars = []
-				words.words.forEach((word, index) => {
-					// Разбиваем каждое слово на символы
-					const chars = new SplitText(word, { type: 'chars' }).chars
-					newChars.push(...chars)
+			// 	// Создаем новый массив символов, включая пробелы
+			// 	const newChars = []
+			// 	words.words.forEach((word, index) => {
+			// 		// Разбиваем каждое слово на символы
+			// 		const chars = new SplitText(word, { type: 'chars' }).chars
+			// 		newChars.push(...chars)
 
-					if (index < words.words.length - 1) {
-						// Добавляем пробелы между словами
-						const space = document.createElement('span')
-						space.innerHTML = '&nbsp;'
-						space.classList.add('space')
-						newChars.push(space)
-					}
-				})
+			// 		if (index < words.words.length - 1) {
+			// 			// Добавляем пробелы между словами
+			// 			const space = document.createElement('span')
+			// 			space.innerHTML = '&nbsp;'
+			// 			space.classList.add('space')
+			// 			newChars.push(space)
+			// 		}
+			// 	})
 
-				// Очистить textElement и добавить обратно символы с пробелами
-				textElement.innerHTML = ''
-				newChars.forEach(char => textElement.appendChild(char))
+			// 	// Очистить textElement и добавить обратно символы с пробелами
+			// 	textElement.innerHTML = ''
+			// 	newChars.forEach(char => textElement.appendChild(char))
 
-				// Получаем обновленный список символов для анимации
-				const updatedChars = Array.from(textElement.children)
+			// 	// Получаем обновленный список символов для анимации
+			// 	const updatedChars = Array.from(textElement.children)
 
-				// Устанавливаем начальные позиции символов и переворачиваем по осям X и Y
-				gsap.set(updatedChars, { xPercent: -50, yPercent: -50 })
+			// 	// Устанавливаем начальные позиции символов и переворачиваем по осям X и Y
+			// 	gsap.set(updatedChars, { xPercent: -50, yPercent: -50 })
 
-				// Создаем анимацию с GSAP
-				const tl = gsap.timeline({ repeat: -1 }).to(updatedChars, {
-					duration: duration, // Продолжительность анимации
-					motionPath: {
-						path: pathElement,
-						align: pathElement,
-						alignOrigin: [0.5, 0.5],
-						autoRotate: true, // Включаем autoRotate
-						start: pathStart, // Начинаем с конца пути
-						end: pathEnd, // Движемся к началу пути
-					},
-					ease: 'linear',
-					stagger: {
-						each: staggerEach, // Расстояние между символами
-						repeat: -1,
-						from: 'end', // Начало с первой буквы
-					},
-					immediateRender: true,
-				})
+			// 	// Создаем анимацию с GSAP
+			// 	const tl = gsap.timeline({ repeat: -1 }).to(updatedChars, {
+			// 		duration: duration, // Продолжительность анимации
+			// 		motionPath: {
+			// 			path: pathElement,
+			// 			align: pathElement,
+			// 			alignOrigin: [0.5, 0.5],
+			// 			autoRotate: true, // Включаем autoRotate
+			// 			start: pathStart, // Начинаем с конца пути
+			// 			end: pathEnd, // Движемся к началу пути
+			// 		},
+			// 		ease: 'linear',
+			// 		stagger: {
+			// 			each: staggerEach, // Расстояние между символами
+			// 			repeat: -1,
+			// 			from: 'end', // Начало с первой буквы
+			// 		},
+			// 		immediateRender: true,
+			// 	})
 
-				// Устанавливаем начальное состояние анимации
-				tl.progress(initialProgress)
-			}
+			// 	// Устанавливаем начальное состояние анимации
+			// 	tl.progress(initialProgress)
+			// }
 
-			animateTextOnPath('.line-text', '.hero-line-01', 20, 0.3, 1, 0, 0.5)
-			animateTextOnPath('.line-text-02', '.hero-line-02', 20, 0.3, 1, 0, 0.5)
+			// animateTextOnPath('.line-text', '.hero-line-01', 20, 0.3, 1, 0, 0.5)
+			// animateTextOnPath('.line-text-02', '.hero-line-02', 20, 0.3, 1, 0, 0.5)
 			
 			const aboutCardsTl = gsap.timeline({ paused: true })
 			aboutCardsTl.from('[gapsy-animate="about-01"]', {

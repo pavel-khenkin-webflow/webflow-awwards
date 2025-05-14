@@ -7,8 +7,9 @@ import { setupResizeListener } from '../utility/run-line'
 import { initializeVolumeSlider } from './interface'
 import { initializeCardHoverEffect } from './slider-team'
 
-console.log('init!')
 document.addEventListener('DOMContentLoaded', event => {
+	const isMobile = window.innerWidth <= 478;
+
 	// Функция, которая выполняется во время загрузки страницы
 	function duringLoading() {
 		const preloaderObj = { count: 0 }
@@ -36,16 +37,6 @@ document.addEventListener('DOMContentLoaded', event => {
 		Draggable,
 		InertiaPlugin
 	)
-
-	// //add runlines animation
-	// setupTextPathAnimations([
-	// 	{ textSelector: '.line-text', pathClass: 'hero-line-01', idSuffix: '1' },
-	// 	{ textSelector: '.line-text-02', pathClass: 'hero-line-02', idSuffix: '2' },
-	// 	{ textSelector: '.line-text-03', pathClass: 'hero-line-03', idSuffix: '3' },
-	// 	{ textSelector: '.line-text-r-01', pathClass: 'reviews-01-path', idSuffix: 'r1' },
-	// 	{ textSelector: '.line-text-r-02', pathClass: 'reviews-02-path', idSuffix: 'r2' }
-	// ])
-	
 
 	// Обработчик события загрузки
 	document.onreadystatechange = function () {
@@ -660,14 +651,14 @@ document.addEventListener('DOMContentLoaded', event => {
 
 	// lines text run animation
 	const animationConfig = [
-		{ textSelector: '.line-text', pathSelector: '.hero-line-01' },
-		{ textSelector: '.line-text-02', pathSelector: '.hero-line-02' },
-		{ textSelector: '.line-text-03', pathSelector: '.hero-line-03' },
-		{ textSelector: '.line-text-r-01', pathSelector: '.reviews-01-path' },
-		{ textSelector: '.line-text-r-02', pathSelector: '.reviews-02-path' },
-		// Можно добавлять больше конфигураций
+		{ textPathSelector: '.textPath01', startOffsetMovePercent: '-125.65%' },
+		{ textPathSelector: '.textPath02', startOffsetMovePercent: '-110.77%' },
+		{ textPathSelector: '.textPath03', startOffsetMovePercent: '-141.32%' },
+		{ textPathSelector: '.textPath04', startOffsetMovePercent: '-184.58%' },
+		{ textPathSelector: '.textPath05', startOffsetMovePercent: '-131.07%' }
 	]
-	setupResizeListener(animationConfig)
+
+	setupResizeListener(animationConfig);
 
 	// Interface animate
 	const InterfaceTimeLine = gsap.timeline({
@@ -825,9 +816,12 @@ document.addEventListener('DOMContentLoaded', event => {
 		},
 		0
 	)
-	functionTimeLine.add(
-		cardLevitationRight(".section_functions [gapsy-animate='left-card']")
-	)
+	if (!isMobile) {
+		functionTimeLine.add(
+			cardLevitationRight(".section_functions [gapsy-animate='left-card']")
+		)
+	}
+	
 	functionTimeLine.from(
 		".section_functions [gapsy-animate='rigth-card']",
 		{
@@ -840,9 +834,12 @@ document.addEventListener('DOMContentLoaded', event => {
 		},
 		0
 	)
+if (!isMobile) {
 	functionTimeLine.add(
 		cardLevitationLeft(".section_functions [gapsy-animate='rigth-card']")
 	)
+}
+
 	functionTimeLine.from(
 		'.section_functions .bg-line',
 		{
@@ -1103,87 +1100,226 @@ document.addEventListener('DOMContentLoaded', event => {
 		},
 		0
 	)
-	// Reviews lines
-
-	console.clear()
-	const boxes = gsap.utils.toArray('.reviews_card')
-	const boxesAmount = boxes.length
-	const step = 360 / boxesAmount
-	let activeIndex = 0
-	let nextIndex
-	let rotationTween
-
-	// Функция для создания анимации бесконечного вращения
-	function startInfiniteRotation() {
-		rotationTween = gsap.to('.reviews_slider-wrap', {
-			rotation: '+=360', // вращение на 360 градусов
-			ease: 'linear', // плавное движение без ускорения и замедления
-			repeat: -1, // бесконечная анимация
-			duration: 50, // продолжительность одного полного оборота (в секундах)
-		})
+	// ---------------- Reviews lines ----------------
+	const container = document.querySelector('.reviews_slider-wrap');
+	let boxes = gsap.utils.toArray('.reviews_card');
+	let horizontalTween;
+	let dragInstance;
+	let halfWidth;
+	let isCurrentlyMobile = window.innerWidth <= 768;
+	
+	function duplicateCards() {
+		const clone = container.innerHTML;
+		container.insertAdjacentHTML('beforeend', clone);
+		boxes = gsap.utils.toArray('.reviews_card');
+	}
+	
+	function createAutoScrollTween() {
+		return gsap.to(container, {
+			x: `-=${halfWidth}`,
+			duration: 30,
+			ease: 'linear',
+			repeat: -1,
+			modifiers: {
+				x: gsap.utils.unitize(x => parseFloat(x) % halfWidth),
+			}
+		});
 	}
 
-	// Функция для установки начального состояния
-	function initializeAnimation() {
-		gsap.set(boxes, {
-			motionPath: {
-				path: '#slider-way',
-				align: '#slider-way',
-				alignOrigin: [0.5, 0.5],
-				start: -0.25,
-				end: i => i / boxesAmount - 0.25,
-				autoRotate: true,
+	function animateDesktopCards() {
+		const path = document.querySelector('#slider-way');
+		if (!path) return;
+	
+		const container = document.querySelector('.reviews_slider-wrap');
+		let boxes = gsap.utils.toArray('.reviews_card');
+		if (!boxes.length) return;
+	
+		// Настройки
+		const cardSpacingEm = 4.8;
+		const animationDuration = 90;
+		const dragSpeedFactor = 0.000005;
+	
+		// Вычисление необходимого количества карточек
+		const pathLength = path.getTotalLength();
+		const baseFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+		const cardSpacingPx = cardSpacingEm * baseFontSize;
+		const requiredCount = Math.ceil(pathLength / cardSpacingPx);
+	
+		// Дублируем карточки до нужного количества
+		while (boxes.length < requiredCount) {
+			container.insertAdjacentHTML('beforeend', container.innerHTML);
+			boxes = gsap.utils.toArray('.reviews_card');
+		}
+	
+		// Отображаем только нужное количество карточек
+		const visibleBoxes = boxes.slice(0, requiredCount);
+		visibleBoxes.forEach(el => el.style.display = '');
+		boxes.slice(requiredCount).forEach(el => el.style.display = 'none');
+	
+		// Очистка предыдущей анимации
+		if (window.desktopTimeline?.kill) window.desktopTimeline.kill();
+	
+		// Создание timeline с анимацией по SVG пути
+		const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'linear' } });
+		window.desktopTimeline = tl;
+	
+		visibleBoxes.forEach((box, i) => {
+			const startProgress = i / requiredCount;
+			tl.to(box, {
+				motionPath: {
+					path,
+					align: path,
+					alignOrigin: [0.5, 0.5],
+					autoRotate: true,
+					start: startProgress,
+					end: startProgress + 1,
+				},
+				duration: animationDuration
+			}, 0);
+		});
+	
+		// Обнуление возможного смещения контейнера
+		gsap.set(container, { x: 0 });
+	
+		// Drag-контроль прогресса анимации
+		if (window.dragInstance?.kill) window.dragInstance.kill();
+	
+		window.dragInstance = Draggable.create(container, {
+			type: 'x',
+			zIndexBoost: false,
+			inertia: true,
+			cursor: 'grab',
+			onPress() {
+				tl.pause();
+				gsap.set(container, { x: 0 });
 			},
-		})
+			onDrag() {
+				const dx = this.deltaX;
+				const shift = dx * dragSpeedFactor * animationDuration;
+				tl.totalTime((tl.totalTime() + shift + animationDuration) % animationDuration);
+				gsap.set(container, { x: 0 });
+			},
+			onRelease() {
+				gsap.set(container, { x: 0 });
+				tl.play();
+			},
+			onThrowUpdate() {
+				gsap.set(container, { x: 0 });
+			}
+		})[0];
 	}
 
-	// Debounce функция
-	function debounce(func, wait) {
-		let timeout
-		return function (...args) {
-			const context = this
-			clearTimeout(timeout)
-			timeout = setTimeout(() => func.apply(context, args), wait)
+	function animateMobileCards(container, cardSelector) {
+		let dragInstance, horizontalTween;
+	
+		const cards = gsap.utils.toArray(cardSelector);
+		if (!cards.length) return;
+	
+		// Дублируем карточки для бесшовности
+		const containerHTML = container.innerHTML;
+		container.insertAdjacentHTML('beforeend', containerHTML);
+	
+		// Пересобираем карточки после дублирования
+		const allCards = gsap.utils.toArray(cardSelector);
+	
+		// Вычисляем половину ширины для петли
+		const containerStyles = window.getComputedStyle(container);
+		const paddingLeft = parseFloat(containerStyles.paddingLeft);
+		const paddingRight = parseFloat(containerStyles.paddingRight);
+		const totalWidth = container.scrollWidth - paddingLeft - paddingRight;
+		const halfWidth = totalWidth / 2;
+	
+		// Создаём бесшовную автопрокрутку
+		const createAutoScrollTween = () => gsap.to(container, {
+			x: `-=${halfWidth}`,
+			duration: 20,
+			ease: 'linear',
+			repeat: -1,
+			modifiers: {
+				x: gsap.utils.unitize(x => parseFloat(x) % halfWidth)
+			}
+		});
+	
+		horizontalTween = createAutoScrollTween();
+	
+		// Создаём Drag управление
+		const draggableInstances = Draggable.create(container, {
+			type: 'x',
+			inertia: true,
+			preventDefault: true,
+			allowNativeTouchScrolling: false,
+			onPress() {
+				if (horizontalTween) horizontalTween.pause();
+			},
+			onRelease() {
+				gsap.delayedCall(0.2, () => {
+					const currentX = parseFloat(gsap.getProperty(container, 'x'));
+					gsap.set(container, { x: currentX % halfWidth });
+					horizontalTween = createAutoScrollTween();
+				});
+			}
+		});
+	
+		if (draggableInstances?.[0]) {
+			dragInstance = draggableInstances[0];
+		} else {
+			console.error(' Draggable instance не создан!');
+		}
+	
+		return { dragInstance, horizontalTween };
+	}
+	
+	
+			
+	function initializeAnimation() {
+		const container = document.querySelector('.reviews_slider-wrap');
+		const cardSelector = '.reviews_card';
+	
+		if (!container) return;
+	
+		gsap.set(container, { clearProps: 'all' });
+	
+		if (window.horizontalTween) window.horizontalTween.kill();
+		if (window.dragInstance?.kill) window.dragInstance.kill();
+	
+		if (isCurrentlyMobile) {
+			const result = animateMobileCards(container, cardSelector);
+			window.horizontalTween = result.horizontalTween;
+			window.dragInstance = result.dragInstance;
+		} else {
+			animateDesktopCards(); // содержит самостоятельные querySelector внутри
 		}
 	}
-
-	// Функция для обновления анимации при изменении ширины экрана
-	function updateOnResize() {
-		rotationTween.kill() // Останавливаем текущую анимацию
-		initializeAnimation() // Переинициализация
-		startInfiniteRotation() // Перезапуск бесконечного вращения
+	
+	
+	
+	function debounce(func, wait) {
+		let timeout;
+		return function (...args) {
+			clearTimeout(timeout);
+			timeout = setTimeout(() => func.apply(this, args), wait);
+		};
 	}
-
-	// Запуск начальной установки
-	initializeAnimation()
-	startInfiniteRotation()
-
-	// Draggable настройки
-	Draggable.create('.reviews_slider-wrap', {
-		type: 'rotation',
-		inertia: true,
-		snap: endVal => {
-			const snap = gsap.utils.snap(step, endVal)
-			const modulus = snap % 360
-			nextIndex = Math.abs((modulus > 0 ? 360 - modulus : modulus) / step)
-			return snap
-		},
-		onDragStart: () => {
-			// Останавливаем бесконечную анимацию, когда начинается ручное вращение
-			rotationTween.kill()
-		},
-		onDragEnd: () => {
-			// Перезапускаем анимацию с текущего положения
-			rotationTween = gsap.to('.reviews_slider-wrap', {
-				rotation: `+=360`, // продолжаем вращение
-				ease: 'linear',
-				repeat: -1,
-				duration: 50, // продолжительность одного полного оборота
-				overwrite: true, // перезаписываем текущие tweens
-			})
-		},
-	})
-
-	// Привязка к изменению ширины экрана
-	window.addEventListener('resize', debounce(updateOnResize, 300))
+	
+	function updateOnResize() {
+		const wasMobile = isCurrentlyMobile;
+		isCurrentlyMobile = window.innerWidth <= 768;
+	
+		if (wasMobile !== isCurrentlyMobile) {
+			boxes = gsap.utils.toArray('.reviews_card');
+			initializeAnimation();
+		} else if (isCurrentlyMobile) {
+			// обновить ширину при повороте экрана
+			const containerStyles = window.getComputedStyle(container);
+			const paddingLeft = parseFloat(containerStyles.paddingLeft);
+			const paddingRight = parseFloat(containerStyles.paddingRight);
+			const totalWidth = container.scrollWidth - paddingLeft - paddingRight;
+			halfWidth = totalWidth / 2;
+		}
+	}
+	
+	// Старт
+	initializeAnimation();
+	window.addEventListener('resize', debounce(updateOnResize, 300));
+	
 })
