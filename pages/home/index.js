@@ -9,7 +9,23 @@ import { initializeCardHoverEffect } from './slider-team'
 
 document.addEventListener('DOMContentLoaded', event => {
 	const isMobile = window.innerWidth <= 478;
-
+///
+	window.addEventListener('load', function() {
+  const wrapper = document.querySelector('.page-wrapper');
+  if (wrapper) {
+    const newDiv = document.createElement('div');
+    Object.assign(newDiv.style, {
+      position: 'fixed',
+      top: '0%',
+      left: '0%',
+      right: '0%',
+      bottom: '0%',
+      zIndex: '999999'
+    });
+    wrapper.appendChild(newDiv);
+  }
+});
+	///
 	// Функция, которая выполняется во время загрузки страницы
 	function duringLoading() {
 		const preloaderObj = { count: 0 }
