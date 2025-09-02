@@ -1,81 +1,86 @@
-import { CSSPlugin, gsap } from 'gsap'
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { SplitText, TextPlugin } from 'gsap/all'
-import { setupResizeListener } from '../utility/run-line'
-gsap.registerPlugin(
-	ScrollTrigger,
-	CSSPlugin,
-	MotionPathPlugin,
-	SplitText,
-	TextPlugin
-)
+// pages/resources/index.js (новая версия без import)
+document.addEventListener('DOMContentLoaded', () => {
+  // Регистрируем плагины (глобальные из CDN)
+  gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, TextPlugin, SplitText);
 
-console.log('init!')
-document.addEventListener('DOMContentLoaded', event => {
-	// Gsap registerPlugin
-	// Hero load animate
-	function duringLoading() {
-		const preloaderObj = { count: 0 }
-		const showPreloaderNum = (selector, obj) => {
-			const el = document.querySelector(selector)
-			el.textContent = `${Math.floor(obj.count)}%`
-		}
+  // ----- Прелоадер -----
+  function duringLoading() {
+    const preloaderObj = { count: 0 };
+    const showPreloaderNum = (selector, obj) => {
+      const el = document.querySelector(selector);
+      if (el) el.textContent = `${Math.floor(obj.count)}%`;
+    };
 
-		gsap.to(preloaderObj, {
-			count: 100,
-			onUpdate: function () {
-				showPreloaderNum('.prelaoder_num', preloaderObj)
-			},
-		})
-	}
+    gsap.to(preloaderObj, {
+      count: 100,
+      duration: 2,
+      onUpdate: () => showPreloaderNum('.preloader_num', preloaderObj) // <- исправлено имя класса
+    });
+  }
 
-	duringLoading()
+  duringLoading();
 
-	const adaptive = gsap.matchMedia()
+  document.onreadystatechange = () => {
+    if (document.readyState === 'complete') {
+      const preloader = document.querySelector('.preloader');
+      if (preloader) {
+        gsap.to(preloader, {
+          opacity: 0,
+          duration: 0.4,
+          onComplete: () => { preloader.style.display = 'none'; }
+        });
+      }
+      // ----- Текст по пути (если он есть на странице) -----
+      if (typeof window.setupResizeListener === 'function') {
+        const animationConfig = [
+          { textPathSelector: '.textpathTeamRev', startOffsetMovePercent: '-65.35%' },
+          { textPathSelector: '.textpathTeam',    startOffsetMovePercent: '-61.46%' }
+        ];
+        window.setupResizeListener(animationConfig);
+      }
 
-	document.onreadystatechange = function () {
-		if (document.readyState === 'interactive') {
-			duringLoading()
-		} else if (document.readyState === 'complete') {
-			const preloader = document.querySelector('.preloader')
-			gsap.to(preloader, {
-				opacity: 0,
-				duration: 0.4,
-				onComplete: function () {
-					preloader.style.display = 'none'
-				},
-			})
-			console.log('prelaoder finish!')
+      // ----- Горизонтальный скролл блока ресурсов -----
+      const resourcesTrack   = document.querySelector('.resources_track');
+      const resourcesContent = document.querySelector('.resources_wrapper');
 
-			const animationConfig = [
-				{ textPathSelector: '.textpathTeamRev', startOffsetMovePercent: '-65.35%' },
-				{ textPathSelector: '.textpathTeam', startOffsetMovePercent: '-61.46%' }
-			]
-			setupResizeListener(animationConfig)
-			// Resources section
-			const resourcesTrack = document.querySelector('.resources_track')
-			const resourcesContent = document.querySelector('.resources_wrapper')
+      if (resourcesTrack && resourcesContent) {
+        const update = () => {
+          const contentW = resourcesContent.scrollWidth;
+          const trackW   = resourcesTrack.offsetWidth;
+          const maxOffset = trackW - contentW;
 
-			const resourcesContentWidth = resourcesContent.scrollWidth
-			const resourcesTrackWidth = resourcesTrack.offsetWidth
+          // Сносим предыдущие триггеры, чтобы пересчитать при ресайзе/репаблише
+          ScrollTrigger.getAll().forEach(t => {
+            if (t.vars && t.vars.id === 'resources-scroll') t.kill(true);
+          });
 
-			let maxOffset = resourcesTrackWidth - resourcesContentWidth
-			console.log(resourcesContentWidth)
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              id: 'resources-scroll',
+              trigger: resourcesTrack,
+              start: '10% top',
+              end: '90% bottom',
+              scrub: 1
+            }
+          });
 
-			const resourcesTl = gsap.timeline({
-				scrollTrigger: {
-					trigger: resourcesTrack,
-					start: '10% top',
-					end: '90% bottom',
-					scrub: 1,
-				},
-			})
-			adaptive.add('(min-width: 479px)', () => {
-				resourcesTl.to(resourcesContent, {
-					x: maxOffset,
-				})
-			})
-		}
-	}
-})
+          // На десктопе двигаем контент влево
+          if (window.matchMedia('(min-width: 479px)').matches) {
+            tl.to(resourcesContent, { x: maxOffset });
+          } else {
+            // На мобилке — без горизонтального скролла
+            gsap.set(resourcesContent, { x: 0 });
+          }
+        };
+
+        update();
+        // Обновление при ресайзе
+        window.addEventListener('resize', () => {
+          // чуть дебаунса чтобы не дёргалось
+          clearTimeout(window.__resUpd);
+          window.__resUpd = setTimeout(update, 150);
+        });
+      }
+    }
+  };
+});
