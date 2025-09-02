@@ -9,17 +9,7 @@ import { initializeCardHoverEffect } from './slider-team'
 
 document.addEventListener('DOMContentLoaded', event => {
 	const isMobile = window.innerWidth <= 478;
-///
-	
-window.addEventListener('DOMContentLoaded', function() {
-  var hero = document.querySelector('.section_hero');
-  if (hero) {
-    // Важно! Сброс других bg-стилей, включая inline и классы
-    hero.style.setProperty('background-color', '#000', 'important');
-  }
-});
 
-	///
 	// Функция, которая выполняется во время загрузки страницы
 	function duringLoading() {
 		const preloaderObj = { count: 0 }
