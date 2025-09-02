@@ -384,27 +384,31 @@ document.addEventListener('DOMContentLoaded', event => {
 			}
 			})
 
-			// Вертикальное положение субтитров (above / average / below)
-			const originSelect = document.getElementById('settings-origin');
-			if (originSelect && subtitlesContainer) {
-			  const VERTICAL = ['is--above', 'is--average', 'is--below'];
-			
-			  const applyOrigin = (value) => {
-			    subtitlesContainer.classList.remove(...VERTICAL);
-			    if (value === 'above') {
-			      subtitlesContainer.classList.add('is--above');
-			    } else if (value === 'average') {
-			      subtitlesContainer.classList.add('is--average');
-			    } else {
-			      // default -> below
-			      subtitlesContainer.classList.add('is--below');
-			    }
-			  };
-			
-			  applyOrigin(originSelect.value);
-			
-			  originSelect.addEventListener('change', (e) => applyOrigin(e.target.value));
-			}
+// --- Вертикальное положение субтитров (above / average / below)
+const originSelect = document.getElementById('settings-origin');
+if (originSelect && subtitlesContainer) {
+  // трогаем только вертикальные классы — горизонтальные не трогаем
+  const VERTICAL = ['is--above', 'is--average', 'is--below'];
+
+  const applyOrigin = (value) => {
+    subtitlesContainer.classList.remove(...VERTICAL);
+    if (value === 'above') {
+      subtitlesContainer.classList.add('is--above');
+    } else if (value === 'average') {
+      subtitlesContainer.classList.add('is--average');
+    } else {
+      // default -> below
+      subtitlesContainer.classList.add('is--below');
+    }
+  };
+
+  // первичная инициализация по текущему значению селекта
+  applyOrigin(originSelect.value);
+
+  // обновление при изменении селекта
+  originSelect.addEventListener('change', (e) => applyOrigin(e.target.value));
+}
+
 
 
 
