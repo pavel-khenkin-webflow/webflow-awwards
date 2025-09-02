@@ -474,26 +474,7 @@ document.addEventListener('DOMContentLoaded', event => {
 			  })();
 			}
 
-			// Получаем элементы селектов шрифта, размера и цвета текста субтитров
-			const fontSelect = document.getElementById('settings-font')
-			const sizeSelect = document.getElementById('settings-size-font')
-			const colorSelect = document.getElementById('settings-size-font-2')
-			
-			// Обработчик изменения семейства шрифта
-			fontSelect.addEventListener('change', function () {
-			  subtitlesContainer.style.fontFamily = fontSelect.value || 'inherit'
-			})
-			
-			// Обработчик изменения размера шрифта
-			sizeSelect.addEventListener('change', function () {
-			  const size = sizeSelect.value || '24'
-			  subtitlesContainer.style.fontSize = size + 'px'
-			})
-			
-			// Обработчик изменения цвета текста
-			colorSelect.addEventListener('change', function () {
-			  subtitlesContainer.style.color = colorSelect.value || '#000000'
-			})
+
 
 			// Обработчики для инпутов и кнопки добавления
 			subtitlesText.addEventListener('input', updateAddButtonState)
