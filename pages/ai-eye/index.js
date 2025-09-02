@@ -1,167 +1,82 @@
-import { CSSPlugin, gsap } from 'gsap'
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { SplitText, TextPlugin } from 'gsap/all'
-import { setupResizeListener } from '../utility/run-line'
+// pages/ai-eye/index.js — версия без import/ESM
+document.addEventListener('DOMContentLoaded', () => {
+  // Зарегистрировать плагины GSAP (они уже подключены через CDN)
+  if (typeof gsap !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, TextPlugin, SplitText);
+  }
 
-gsap.registerPlugin(
-	ScrollTrigger,
-	CSSPlugin,
-	MotionPathPlugin,
-	SplitText,
-	TextPlugin
-)
+  // ----- Прелоадер -----
+  function duringLoading() {
+    const preloaderObj = { count: 0 };
+    const showPreloaderNum = (selector, obj) => {
+      const el = document.querySelector(selector);
+      if (el) el.textContent = `${Math.floor(obj.count)}%`;
+    };
 
-console.log('init!')
-document.addEventListener('DOMContentLoaded', event => {
-	// Hero load animate
-	function duringLoading() {
-		const preloaderObj = { count: 0 }
-		const showPreloaderNum = (selector, obj) => {
-			const el = document.querySelector(selector)
-			el.textContent = `${Math.floor(obj.count)}%`
-		}
+    gsap.to(preloaderObj, {
+      count: 100,
+      onUpdate: () => showPreloaderNum('.preloader_num', preloaderObj)
+    });
+  }
 
-		gsap.to(preloaderObj, {
-			count: 100,
-			onUpdate: function () {
-				showPreloaderNum('.prelaoder_num', preloaderObj)
-			},
-		})
-	}
+  duringLoading();
 
-	duringLoading()
+  document.onreadystatechange = () => {
+    if (document.readyState === 'interactive') {
+      duringLoading();
+    } else if (document.readyState === 'complete') {
+      const preloader = document.querySelector('.preloader');
+      if (preloader) {
+        gsap.to(preloader, {
+          opacity: 0,
+          duration: 0.4,
+          onComplete: () => { preloader.style.display = 'none'; }
+        });
+      }
 
-	document.onreadystatechange = function () {
-		if (document.readyState === 'interactive') {
-			duringLoading()
-		} else if (document.readyState === 'complete') {
-			const preloader = document.querySelector('.preloader')
-			gsap.to(preloader, {
-				opacity: 0,
-				duration: 0.4,
-				onComplete: function () {
-					preloader.style.display = 'none'
-				},
-			})
-			console.log('prelaoder finish!')
-			const animationConfig = [
-				{ textSelector: '.line-text', pathSelector: '.hero-line-01' },
-				// Можно добавлять больше конфигураций
-			]
-			setupResizeListener(animationConfig)
-			// HERO SECTION
-			const splitH1Hero = new SplitText('[animate="text-h1"]', {
-				type: 'words, chars',
-			})
-			const heroTimeLine = gsap.timeline({})
-			heroTimeLine.from(splitH1Hero.chars, {
-				duration: 0.4,
-				y: 100,
-				autoAlpha: 0,
-				stagger: 0.02,
-			})
-			heroTimeLine.from(
-				'[animate="hero-text"]',
-				{
-					opacity: 0,
-					y: '50%',
-					duration: 0.6,
-					delay: 0.5,
-				},
-				'<'
-			)
-			heroTimeLine.from(
-				'.eye_content',
-				{
-					opacity: 0,
-					y: '100%',
-					duration: 0.6,
-				},
-				'<'
-			)
-			heroTimeLine.from(
-				'.section_eye .bg-line',
-				{
-					height: '0%',
-					duration: 3,
-					stagger: 0.2,
-					delay: 0.5,
-				},
-				'<'
-			)
-			heroTimeLine.from(
-				'.ai_lines',
-				{
-					opacity: 0,
-					duration: 2,
-				},
-				0
-			)
-			// EYE SLIDER
-			const eyeSlider = document.getElementById('eye-slider')
-			const eyeContainer = document.querySelector('.eye_content')
-			eyeSlider.addEventListener('input', e => {
-				eyeContainer.style.setProperty('--position', `${e.target.value}%`)
-			})
+      // HERO
+      const splitH1Hero = new SplitText('[animate="text-h1"]', { type: 'words, chars' });
+      const heroTl = gsap.timeline({});
+      heroTl.from(splitH1Hero.chars, { duration: 0.4, y: 100, autoAlpha: 0, stagger: 0.02 });
+      heroTl.from('[animate="hero-text"]', { opacity: 0, y: '50%', duration: 0.6, delay: 0.5 }, '<');
+      heroTl.from('.eye_content', { opacity: 0, y: '100%', duration: 0.6 }, '<');
+      heroTl.from('.section_eye .bg-line', { height: '0%', duration: 3, stagger: 0.2, delay: 0.5 }, '<');
+      heroTl.from('.ai_lines', { opacity: 0, duration: 2 }, 0);
 
-			// SECTION AI EYE CONTACT
-			const aiContactTitle = new SplitText("[da='ai-contact-title']", {
-				type: 'words, chars',
-			})
-			const aiContactTl = gsap.timeline({
-				scrollTrigger: {
-					trigger: '.section_eye-contact',
-					start: 'top center',
-					end: 'bottom bottom',
-				},
-			})
-			aiContactTl.from(aiContactTitle.chars, {
-				duration: 0.3,
-				y: 100,
-				autoAlpha: 0,
-				stagger: 0.02,
-			})
-			aiContactTl.from(
-				"[da='ai-eye-text']",
-				{
-					opacity: 0,
-					duration: 0.4,
-				},
-				'<'
-			)
-			aiContactTl.from(
-				'.eye-contact_content',
-				{
-					opacity: 0,
-					y: '50%',
-					duration: 0.6,
-				},
-				'<'
-			)
-			aiContactTl.from(
-				'.section_eye-contact .bg-line',
-				{
-					height: '0%',
-					duration: 3,
-					stagger: 0.2,
-					delay: 0.5,
-				},
-				'<'
-			)
-		}
-	}
-	//SWIPER
-	const swiper = new Swiper('.other-resources_slider', {
-		slidesPerView: 'auto',
-		spaceBetween: 30,
-		speed: 1200,
-		grabCursor: true,
-		freeMode: true,
-		// Navigation buttons
-		navigation: {
-			prevEl: '.other-resources_nav .navigation-prev',
-			nextEl: '.other-resources_nav .navigation-next',
-		},
-	})
-})
+      // Слайдер сравнения
+      const eyeSlider = document.getElementById('eye-slider');
+      const eyeContainer = document.querySelector('.eye_content');
+      if (eyeSlider && eyeContainer) {
+        eyeSlider.addEventListener('input', e => {
+          eyeContainer.style.setProperty('--position', `${e.target.value}%`);
+        });
+      }
+
+      // SECTION AI EYE CONTACT
+      const aiContactTitle = new SplitText("[da='ai-contact-title']", { type: 'words, chars' });
+      const aiContactTl = gsap.timeline({
+        scrollTrigger: { trigger: '.section_eye-contact', start: 'top center', end: 'bottom bottom' }
+      });
+      aiContactTl.from(aiContactTitle.chars, { duration: 0.3, y: 100, autoAlpha: 0, stagger: 0.02 });
+      aiContactTl.from("[da='ai-eye-text']", { opacity: 0, duration: 0.4 }, '<');
+      aiContactTl.from('.eye-contact_content', { opacity: 0, y: '50%', duration: 0.6 }, '<');
+      aiContactTl.from('.section_eye-contact .bg-line', { height: '0%', duration: 3, stagger: 0.2, delay: 0.5 }, '<');
+
+    }
+  };
+
+  // Swiper (блок "Other resources")
+  if (typeof Swiper !== 'undefined') {
+    new Swiper('.other-resources_slider', {
+      slidesPerView: 'auto',
+      spaceBetween: 30,
+      speed: 1200,
+      grabCursor: true,
+      freeMode: true,
+      navigation: {
+        prevEl: '.other-resources_nav .navigation-prev',
+        nextEl: '.other-resources_nav .navigation-next',
+      },
+    });
+  }
+});
