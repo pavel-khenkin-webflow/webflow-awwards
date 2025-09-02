@@ -386,22 +386,29 @@ document.addEventListener('DOMContentLoaded', event => {
 
 			// Вертикальное положение субтитров (above / average / below)
 			const originSelect = document.getElementById('settings-origin');
+			if (originSelect && subtitlesContainer) {
+			  const VERTICAL = ['is--above', 'is--average', 'is--below'];
 			
-			function applyOriginClass(value) {
-			  subtitlesContainer.classList.remove('is--above', 'is--average', 'is--below');
-			  if (value === 'above') {
-			    subtitlesContainer.classList.add('is--above');
-			  } else if (value === 'average') {
-			    subtitlesContainer.classList.add('is--average');
-			  } else {
-			    // default → below
-			    subtitlesContainer.classList.add('is--below');
-			  }
+			  const applyOrigin = (value) => {
+			    subtitlesContainer.classList.remove(...VERTICAL);
+			    if (value === 'above') {
+			      subtitlesContainer.classList.add('is--above');
+			    } else if (value === 'average') {
+			      subtitlesContainer.classList.add('is--average');
+			    } else {
+			      // default -> below
+			      subtitlesContainer.classList.add('is--below');
+			    }
+			  };
+			
+			  applyOrigin(originSelect.value);
+			
+			  originSelect.addEventListener('change', (e) => applyOrigin(e.target.value));
 			}
-			
-			originSelect.addEventListener('change', function () {
-			  applyOriginClass(originSelect.value);
-			});
+
+
+
+
 			
 			// Получаем элементы селектов шрифта, размера и цвета текста субтитров
 			const fontSelect = document.getElementById('settings-font')
