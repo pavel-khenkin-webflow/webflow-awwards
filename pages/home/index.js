@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', event => {
 			}
 			})
 
-			// --- Вертикальное положение субтитров (above / average / below)
+			// Вертикальное положение субтитров (above / average / below)
 			const originSelect = document.getElementById('settings-origin');
 			
 			function applyOriginClass(value) {
@@ -394,20 +394,14 @@ document.addEventListener('DOMContentLoaded', event => {
 			  } else if (value === 'average') {
 			    subtitlesContainer.classList.add('is--average');
 			  } else {
-			    // default -> below
+			    // default → below
 			    subtitlesContainer.classList.add('is--below');
 			  }
 			}
 			
-			if (originSelect) {
-			  // Применяем текущий выбор при загрузке
+			originSelect.addEventListener('change', function () {
 			  applyOriginClass(originSelect.value);
-			
-			  // Слушаем изменения селекта
-			  originSelect.addEventListener('change', function () {
-			    applyOriginClass(originSelect.value);
-			  });
-			}
+			});
 			
 			// Получаем элементы селектов шрифта, размера и цвета текста субтитров
 			const fontSelect = document.getElementById('settings-font')
