@@ -1,213 +1,95 @@
-import { CSSPlugin, gsap } from 'gsap'
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { SplitText, TextPlugin } from 'gsap/all'
-import { setupResizeListener } from '../utility/run-line'
+// pages/ai-avatar/index.js — без ESM
+document.addEventListener('DOMContentLoaded', () => {
+  // GSAP плагины глобальны (из CDN)
+  if (typeof gsap !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, TextPlugin, SplitText);
+  }
 
-gsap.registerPlugin(
-	ScrollTrigger,
-	CSSPlugin,
-	MotionPathPlugin,
-	SplitText,
-	TextPlugin
-)
+  // ----- Прелоадер -----
+  function duringLoading() {
+    const preloaderObj = { count: 0 };
+    const showPreloaderNum = (selector, obj) => {
+      const el = document.querySelector(selector);
+      if (el) el.textContent = `${Math.floor(obj.count)}%`;
+    };
 
-console.log('init!')
-document.addEventListener('DOMContentLoaded', event => {
-	// Hero load animate
-	function duringLoading() {
-		const preloaderObj = { count: 0 }
-		const showPreloaderNum = (selector, obj) => {
-			const el = document.querySelector(selector)
-			el.textContent = `${Math.floor(obj.count)}%`
-		}
+    gsap.to(preloaderObj, {
+      count: 100,
+      onUpdate: () => showPreloaderNum('.preloader_num', preloaderObj) // <- фикс
+    });
+  }
 
-		gsap.to(preloaderObj, {
-			count: 100,
-			onUpdate: function () {
-				showPreloaderNum('.prelaoder_num', preloaderObj)
-			},
-		})
-	}
+  duringLoading();
 
-	duringLoading()
+  document.onreadystatechange = () => {
+    if (document.readyState === 'interactive') {
+      duringLoading();
+    } else if (document.readyState === 'complete') {
+      const preloader = document.querySelector('.preloader');
+      if (preloader) {
+        gsap.to(preloader, {
+          opacity: 0,
+          duration: 0.4,
+          onComplete: () => { preloader.style.display = 'none'; }
+        });
+      }
 
-	document.onreadystatechange = function () {
-		if (document.readyState === 'interactive') {
-			duringLoading()
-		} else if (document.readyState === 'complete') {
-			const preloader = document.querySelector('.preloader')
-			gsap.to(preloader, {
-				opacity: 0,
-				duration: 0.4,
-				onComplete: function () {
-					preloader.style.display = 'none'
-				},
-			})
-			console.log('prelaoder finish!')
-			const animationConfig = [
-				{ textPathSelector: '.textpathTeam', startOffsetMovePercent: '-45.82%' },
-			]
-			setupResizeListener(animationConfig)
-			// HERO SECTION
-			const splitH1Hero = new SplitText('[animate="text-h1"]', {
-				type: 'words, chars',
-			})
-			//now animate each character into place from 100px above, fading in:
-			gsap.from(splitH1Hero.chars, {
-				duration: 0.4,
-				y: 100,
-				autoAlpha: 0,
-				stagger: 0.02,
-			})
-			let heroTimeLine = gsap.timeline({})
-			heroTimeLine.from(
-				'[animate="hero-text"]',
-				{
-					opacity: 0,
-					y: '50%',
-					duration: 0.6,
-					delay: 0.5,
-				},
-				0
-			)
-			heroTimeLine.from(
-				'.ai-avatar_image',
-				{
-					opacity: 0,
-					y: '100%',
-					duration: 0.6,
-				},
-				0
-			)
-			heroTimeLine.from(
-				'.section_ai .bg-line',
-				{
-					height: '0%',
-					duration: 3,
-					stagger: 0.2,
-					delay: 0.5,
-				},
-				0
-			)
-			heroTimeLine.from(
-				'.ai_lines',
-				{
-					opacity: 0,
-					duration: 2,
-				},
-				0
-			)
+      // Бегущая надпись по пути (если элемент есть на странице)
+      if (typeof window.setupResizeListener === 'function') {
+        const animationConfig = [
+          { textPathSelector: '.textpathTeam', startOffsetMovePercent: '-45.82%' }
+        ];
+        window.setupResizeListener(animationConfig);
+      }
 
-			// SECTION AI VOICE SECTION
-			const aiVoiceTl = gsap.timeline({
-				scrollTrigger: {
-					trigger: '.section_ai-v',
-					start: 'top center',
-					end: 'bottom bottom',
-				},
-			})
-			aiVoiceTl.from(
-				'.section_ai-v .bg-line',
-				{
-					height: '0%',
-					duration: 3,
-					stagger: 0.2,
-					delay: 0.5,
-				},
-				0
-			)
-			// AI VOICE CARD TOP
-			const aiVoiceTitle01 = new SplitText("[da='ai-voice-title-01']", {
-				type: 'words, chars',
-			})
-			const aiVoiceCard01Tl = gsap.timeline({
-				scrollTrigger: {
-					trigger: "[da='ai-voice-card-01']",
-					start: 'top center',
-					end: 'bottom bottom',
-				},
-			})
-			aiVoiceCard01Tl.from(aiVoiceTitle01.chars, {
-				duration: 0.3,
-				y: 100,
-				autoAlpha: 0,
-				stagger: 0.02,
-			})
-			aiVoiceCard01Tl.from(
-				"[da='ai-voice-card-01'] [da='ai-voice-text']",
-				{
-					opacity: 0,
-					duration: 0.4,
-				},
-				'<'
-			)
-			aiVoiceCard01Tl.from(
-				'.ai-v_image',
-				{
-					opacity: 0,
-					y: '50%',
-					duration: 0.6,
-				},
-				'<'
-			)
-			aiVoiceCard01Tl.from(
-				'.ai_content_top-s',
-				{
-					opacity: 0,
-					x: '-100%',
-					duration: 0.6,
-				},
-				'<'
-			)
-			// AI VOICE CARD BOT
-			const aiVoiceTitle02 = new SplitText("[da='ai-voice-title-02']", {
-				type: 'words, chars',
-			})
-			const aiVoiceCard02Tl = gsap.timeline({
-				scrollTrigger: {
-					trigger: "[da='ai-voice-card-02']",
-					start: 'top center',
-					end: 'bottom bottom',
-				},
-			})
-			aiVoiceCard02Tl.from(aiVoiceTitle02.chars, {
-				duration: 0.3,
-				y: 100,
-				autoAlpha: 0,
-				stagger: 0.02,
-			})
-			aiVoiceCard02Tl.from(
-				"[da='ai-voice-card-02'] [da='ai-voice-text']",
-				{
-					opacity: 0,
-					duration: 0.4,
-				},
-				'<'
-			)
-			aiVoiceCard02Tl.from(
-				"[da='ai-voice-card-02'] .ai-v_card-content",
-				{
-					opacity: 0,
-					y: '50%',
-					duration: 0.6,
-				},
-				'<'
-			)
-			
-		}
-	}
-	//SWIPER
-	const swiper = new Swiper('.other-resources_slider', {
-		slidesPerView: 'auto',
-		spaceBetween: 30,
-		speed: 1200,
-		grabCursor: true,
-		freeMode: true,
-		// Navigation buttons
-		navigation: {
-			prevEl: '.other-resources_nav .navigation-prev',
-			nextEl: '.other-resources_nav .navigation-next',
-		},
-	})
-})
+      // === HERO ===
+      const splitH1Hero = new SplitText('[animate="text-h1"]', { type: 'words, chars' });
+      gsap.from(splitH1Hero.chars, { duration: 0.4, y: 100, autoAlpha: 0, stagger: 0.02 });
+
+      const heroTl = gsap.timeline({});
+      heroTl.from('[animate="hero-text"]', { opacity: 0, y: '50%', duration: 0.6, delay: 0.5 }, 0)
+            .from('.ai-avatar_image',     { opacity: 0, y: '100%', duration: 0.6 }, 0)
+            .from('.section_ai .bg-line', { height: '0%', duration: 3, stagger: 0.2, delay: 0.5 }, 0)
+            .from('.ai_lines',            { opacity: 0, duration: 2 }, 0);
+
+      // === SECTION AI VOICE ===
+      const aiVoiceTl = gsap.timeline({
+        scrollTrigger: { trigger: '.section_ai-v', start: 'top center', end: 'bottom bottom' }
+      }).from('.section_ai-v .bg-line', { height: '0%', duration: 3, stagger: 0.2, delay: 0.5 }, 0);
+
+      // Карточка TOP
+      const aiVoiceTitle01 = new SplitText("[da='ai-voice-title-01']", { type: 'words, chars' });
+      const aiVoiceCard01Tl = gsap.timeline({
+        scrollTrigger: { trigger: "[da='ai-voice-card-01']", start: 'top center', end: 'bottom bottom' }
+      });
+      aiVoiceCard01Tl.from(aiVoiceTitle01.chars, { duration: 0.3, y: 100, autoAlpha: 0, stagger: 0.02 })
+                     .from("[da='ai-voice-card-01'] [da='ai-voice-text']", { opacity: 0, duration: 0.4 }, '<')
+                     .from('.ai-v_image', { opacity: 0, y: '50%', duration: 0.6 }, '<')
+                     .from('.ai_content_top-s', { opacity: 0, x: '-100%', duration: 0.6 }, '<');
+
+      // Карточка BOTTOM
+      const aiVoiceTitle02 = new SplitText("[da='ai-voice-title-02']", { type: 'words, chars' });
+      const aiVoiceCard02Tl = gsap.timeline({
+        scrollTrigger: { trigger: "[da='ai-voice-card-02']", start: 'top center', end: 'bottom bottom' }
+      });
+      aiVoiceCard02Tl.from(aiVoiceTitle02.chars, { duration: 0.3, y: 100, autoAlpha: 0, stagger: 0.02 })
+                     .from("[da='ai-voice-card-02'] [da='ai-voice-text']", { opacity: 0, duration: 0.4 }, '<')
+                     .from("[da='ai-voice-card-02'] .ai-v_card-content", { opacity: 0, y: '50%', duration: 0.6 }, '<');
+    }
+  };
+
+  // Swiper (Other resources)
+  if (typeof Swiper !== 'undefined') {
+    new Swiper('.other-resources_slider', {
+      slidesPerView: 'auto',
+      spaceBetween: 30,
+      speed: 1200,
+      grabCursor: true,
+      freeMode: true,
+      navigation: {
+        prevEl: '.other-resources_nav .navigation-prev',
+        nextEl: '.other-resources_nav .navigation-next',
+      },
+    });
+  }
+});
