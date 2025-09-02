@@ -384,95 +384,26 @@ document.addEventListener('DOMContentLoaded', event => {
 			}
 			})
 
-			// =======================
-			// Subtitles UI manager (origin / font / size / color)
-			// =======================
-			const el = {
-			  subs:  document.getElementById('subtitles'),
-			  origin: document.getElementById('settings-origin'),
-			  font:   document.getElementById('settings-font'),
-			  size:   document.getElementById('settings-size-font'),
-			  color:  document.getElementById('settings-color-font'),
-			};
+			// Получаем элементы селектов шрифта, размера и цвета текста субтитров
+			const fontSelect = document.getElementById('settings-font')
+			const sizeSelect = document.getElementById('settings-size-font')
+			const colorSelect = document.getElementById('settings-size-font-2')
 			
-			if (el.subs) {
-			  // ---- helpers
-			  const removeAll = (node, classes) => node.classList.remove(...classes.filter(Boolean));
+			// Обработчик изменения семейства шрифта
+			fontSelect.addEventListener('change', function () {
+			  subtitlesContainer.style.fontFamily = fontSelect.value || 'inherit'
+			})
 			
-			  // ---------- origin (above / average / below)
-			  (function initOrigin() {
-			    if (!el.origin) return;
+			// Обработчик изменения размера шрифта
+			sizeSelect.addEventListener('change', function () {
+			  const size = sizeSelect.value || '24'
+			  subtitlesContainer.style.fontSize = size + 'px'
+			})
 			
-			    const ORIGIN_CLASSES = ['is--above', 'is--average', 'is--below'];
-			    const ORIGIN_MAP = { above: 'is--above', average: 'is--average', below: 'is--below' };
-			
-			    if (!ORIGIN_CLASSES.some(c => el.subs.classList.contains(c))) {
-			      el.subs.classList.add('is--below'); // дефолт
-			    }
-			
-			    const apply = (raw) => {
-			      const v = String(raw || '').trim().toLowerCase();
-			      removeAll(el.subs, ORIGIN_CLASSES);
-			      el.subs.classList.add(ORIGIN_MAP[v] || 'is--below');
-			    };
-			
-			    apply(el.origin.value);
-			    el.origin.addEventListener('change', (e) => apply(e.target.value));
-			  })();
-			
-			  // ---------- font (Poppins / Oswald / Rocksalt)
-			  (function initFont() {
-			    if (!el.font) return;
-			
-			    const FONT_CLASSES = ['is--poppins', 'is--oswald', 'is--rocksalt'];
-			    const FONT_MAP = { poppins: 'is--poppins', oswald: 'is--oswald', rocksalt: 'is--rocksalt' };
-			
-			    const apply = (raw) => {
-			      const v = String(raw || '').trim().toLowerCase();
-			      removeAll(el.subs, FONT_CLASSES);
-			      el.subs.classList.add(FONT_MAP[v] || 'is--poppins'); // дефолт
-			    };
-			
-			    apply(el.font.value);
-			    el.font.addEventListener('change', (e) => apply(e.target.value));
-			  })();
-			
-			  // ---------- size (16 / 24 / 32)
-			  (function initSize() {
-			    if (!el.size) return;
-			
-			    const SIZE_CLASSES = ['is--size16', 'is--size24', 'is--size32'];
-			
-			    const apply = (raw) => {
-			      const key = String(raw || '').replace(/[^\d]/g, '');
-			      removeAll(el.subs, SIZE_CLASSES);
-			
-			      if (key === '24')      el.subs.classList.add('is--size24');
-			      else if (key === '32') el.subs.classList.add('is--size32');
-			      else                   el.subs.classList.add('is--size16'); // дефолт
-			    };
-			
-			    apply(el.size.value);
-			    el.size.addEventListener('change', (e) => apply(e.target.value));
-			  })();
-			
-			  // ---------- color (white / green / blue)
-			  (function initColor() {
-			    if (!el.color) return;
-			
-			    const COLOR_CLASSES = ['is--white', 'is--green', 'is--blue'];
-			    const COLOR_MAP = { white: 'is--white', green: 'is--green', blue: 'is--blue' };
-			
-			    const apply = (raw) => {
-			      const v = String(raw || '').trim().toLowerCase();
-			      removeAll(el.subs, COLOR_CLASSES);
-			      el.subs.classList.add(COLOR_MAP[v] || 'is--white'); // дефолт
-			    };
-			
-			    apply(el.color.value);
-			    el.color.addEventListener('change', (e) => apply(e.target.value));
-			  })();
-			}
+			// Обработчик изменения цвета текста
+			colorSelect.addEventListener('change', function () {
+			  subtitlesContainer.style.color = colorSelect.value || '#000000'
+			})
 
 			// Обработчики для инпутов и кнопки добавления
 			subtitlesText.addEventListener('input', updateAddButtonState)
