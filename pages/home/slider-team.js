@@ -1,5 +1,3 @@
-import { gsap } from 'gsap'
-
 export function initializeCardHoverEffect(cardClass, textClass) {
 	const cards = document.querySelectorAll(cardClass)
 
