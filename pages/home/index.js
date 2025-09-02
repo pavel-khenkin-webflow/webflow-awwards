@@ -1,11 +1,6 @@
-import { gsap } from 'gsap'
-import { Flip } from 'gsap/Flip'
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Draggable, InertiaPlugin, SplitText, TextPlugin } from 'gsap/all'
-import { setupResizeListener } from '../utility/run-line'
-import { initializeVolumeSlider } from './interface'
-import { initializeCardHoverEffect } from './slider-team'
+import { setupResizeListener } from '../utility/run-line.js'
+import { initializeVolumeSlider } from './interface.js'
+import { initializeCardHoverEffect } from './slider-team.js'
 
 document.addEventListener('DOMContentLoaded', event => {
 	const isMobile = window.innerWidth <= 478;
