@@ -1,5 +1,3 @@
-import Matter from 'matter-js';
-
 document.addEventListener('DOMContentLoaded', () => {
 	const {
 		Engine,
