@@ -11,21 +11,23 @@ document.addEventListener('DOMContentLoaded', () => {
     Events,
   } = Matter;
 
+  // === ИНИЦ ===
   const engine = Engine.create();
-
-  // Полностью убираем гравитацию
-  engine.world.gravity.y = 0;
-  engine.world.gravity.x = 0;
-  engine.world.gravity.scale = 0;
-
   const world = engine.world;
 
+  // Полностью выключаем гравитацию
+  world.gravity.x = 0;
+  world.gravity.y = 0;
+  world.gravity.scale = 0;
+
   const canvasWrapper = document.getElementById('canvas_wrapper2');
+  // чтобы абсолютные элементы рассчитывались от контейнера
   canvasWrapper.style.position = 'relative';
+  canvasWrapper.style.overflow = 'hidden';
 
   const render = Render.create({
     element: canvasWrapper,
-    engine: engine,
+    engine,
     options: {
       width: canvasWrapper.offsetWidth,
       height: canvasWrapper.offsetHeight,
@@ -36,73 +38,91 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   Render.run(render);
-  const runner = Runner.create();
+  const runner = Runner.create({ isFixed: true }); // стабильный таймстеп
   Runner.run(runner, engine);
 
-  // стены
-  const walls = [
-    Bodies.rectangle(canvasWrapper.offsetWidth / 2, -50, canvasWrapper.offsetWidth, 100, { isStatic: true }),
-    Bodies.rectangle(canvasWrapper.offsetWidth / 2, canvasWrapper.offsetHeight + 50, canvasWrapper.offsetWidth, 100, { isStatic: true }),
-    Bodies.rectangle(-50, canvasWrapper.offsetHeight / 2, 100, canvasWrapper.offsetHeight, { isStatic: true }),
-    Bodies.rectangle(canvasWrapper.offsetWidth + 50, canvasWrapper.offsetHeight / 2, 100, canvasWrapper.offsetHeight, { isStatic: true }),
-  ];
+  // === СТЕНЫ ===
+  function makeWalls() {
+    const W = canvasWrapper.offsetWidth;
+    const H = canvasWrapper.offsetHeight;
+    return [
+      Bodies.rectangle(W / 2, -50, W, 100, { isStatic: true }),
+      Bodies.rectangle(W / 2, H + 50, W, 100, { isStatic: true }),
+      Bodies.rectangle(-50, H / 2, 100, H, { isStatic: true }),
+      Bodies.rectangle(W + 50, H / 2, 100, H, { isStatic: true }),
+    ];
+  }
+  let walls = makeWalls();
   World.add(world, walls);
 
-  // элементы
-  const elements = document.querySelectorAll('.canvas-btn2');
+  // === ЭЛЕМЕНТЫ ===
+  const elements = Array.from(document.querySelectorAll('.canvas-btn2'));
   const wrapperRect = canvasWrapper.getBoundingClientRect();
   const bodies = [];
 
-  elements.forEach(element => {
-    const rect = element.getBoundingClientRect();
+  elements.forEach((el) => {
+    const rect = el.getBoundingClientRect();
 
-    element.style.width = `${rect.width}px`;
-    element.style.height = `${rect.height}px`;
-    element.style.position = 'absolute';
-    element.style.pointerEvents = 'none';
-    element.style.transformOrigin = 'center center';
-    element.style.willChange = 'transform, left, top';
+    // базовая подготовка DOM
+    el.style.width = `${rect.width}px`;
+    el.style.height = `${rect.height}px`;
+    el.style.position = 'absolute';
+    el.style.left = '0px';
+    el.style.top = '0px';
+    el.style.pointerEvents = 'none';
+    el.style.transformOrigin = 'center center';
+    el.style.willChange = 'transform';
 
     const x = Math.random() * (wrapperRect.width - rect.width) + rect.width / 2;
     const y = Math.random() * (wrapperRect.height - rect.height) + rect.height / 2;
 
     const body = Bodies.rectangle(x, y, rect.width, rect.height, {
-      restitution: 0.9,     // упругие столкновения
+      restitution: 0.9,   // упруго, как в невесомости
       friction: 0,
       frictionStatic: 0,
-      frictionAir: 0.03,    // лёгкое сопротивление воздуха
+      frictionAir: 0.035, // сглаживаем рывки
       chamfer: { radius: 10 },
       render: { fillStyle: 'transparent' },
     });
 
     // очень маленькие стартовые скорости
-    const vx = (Math.random() - 0.5) * 0.5;
-    const vy = (Math.random() - 0.5) * 0.5;
-    Body.setVelocity(body, { x: vx, y: vy });
-
-    // лёгкое вращение
+    Body.setVelocity(body, {
+      x: (Math.random() - 0.5) * 0.4,
+      y: (Math.random() - 0.5) * 0.4,
+    });
     Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.01);
 
     World.add(world, body);
     bodies.push(body);
   });
 
-  // мягкий дрейф (синусоидальные силы)
-  Events.on(engine, 'beforeUpdate', (event) => {
-    const t = event.timestamp * 0.001;
-    const base = 0.00002;
+  // === АНТИ-ГРАВИТАЦИЯ (на случай внешних переопределений) ===
+  Events.on(engine, 'beforeUpdate', () => {
+    const g = world.gravity;
+    // компенсируем любую текущую гравитацию мира
+    if ((g.x !== 0 || g.y !== 0) && g.scale !== 0) {
+      bodies.forEach((b) => {
+        const fx = -g.x * g.scale * b.mass;
+        const fy = -g.y * g.scale * b.mass;
+        Body.applyForce(b, b.position, { x: fx, y: fy });
+      });
+    }
 
+    // мягкий дрейф
+    const t = engine.timing.timestamp * 0.001;
+    const drift = 0.00002;
     bodies.forEach((b, i) => {
-      const fx = Math.sin(t + i * 0.7) * base * b.mass;
-      const fy = Math.cos(t * 1.1 + i * 0.37) * base * b.mass;
-      Body.applyForce(b, b.position, { x: fx, y: fy });
+      Body.applyForce(b, b.position, {
+        x: Math.sin(t + i * 0.73) * drift * b.mass,
+        y: Math.cos(t * 1.11 + i * 0.37) * drift * b.mass,
+      });
     });
   });
 
-  // редкие подталкивания
+  // редкие маленькие «подталкивания» — чтобы не залипали
   setInterval(() => {
-    bodies.forEach(b => {
-      const f = 0.00008 * b.mass;
+    bodies.forEach((b) => {
+      const f = 0.00006 * b.mass;
       Body.applyForce(b, b.position, {
         x: (Math.random() - 0.5) * f,
         y: (Math.random() - 0.5) * f,
@@ -110,28 +130,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, 3000);
 
-  // обновление позиций DOM-элементов
+  // === ОТРИСОВКА DOM ПО ФИЗИКЕ (только transform — без left/top) ===
   Events.on(engine, 'afterUpdate', () => {
-    elements.forEach((element, i) => {
-      const body = bodies[i];
-      element.style.left = `${body.position.x}px`;
-      element.style.top = `${body.position.y}px`;
-      element.style.transform = `translate(-50%, -50%) rotate(${body.angle}rad)`;
-    });
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      const b = bodies[i];
+      // трансформ в мировой системе координат контейнера
+      el.style.transform =
+        `translate3d(${b.position.x}px, ${b.position.y}px, 0) ` +
+        `translate(-50%, -50%) rotate(${b.angle}rad)`;
+    }
   });
 
-  // мышь для интерактивности
+  // === МЫШЬ ===
   const mouse = Mouse.create(render.canvas);
   const mouseConstraint = MouseConstraint.create(engine, {
-    mouse: mouse,
+    mouse,
     constraint: { stiffness: 0.1, render: { visible: false } },
   });
   World.add(world, mouseConstraint);
   render.mouse = mouse;
 
-  // адаптация к ресайзу
+  // === РЕСАЙЗ (пересоздаём стены и канвас) ===
   window.addEventListener('resize', () => {
     render.canvas.width = canvasWrapper.offsetWidth;
     render.canvas.height = canvasWrapper.offsetHeight;
+
+    World.remove(world, walls);
+    walls = makeWalls();
+    World.add(world, walls);
   });
 });
