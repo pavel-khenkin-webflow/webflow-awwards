@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   World.add(world, walls);
 
   // элементы
-  const elements = document.querySelectorAll('.canvas-btn2');
+  const elements = document.querySelectorAll('.canvas-btn_white');
   const wrapperRect = canvasWrapper.getBoundingClientRect();
   const bodies = [];
 
