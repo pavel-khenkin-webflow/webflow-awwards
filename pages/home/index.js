@@ -25,12 +25,12 @@ document.addEventListener('DOMContentLoaded', event => {
 	duringLoading()
 
 	gsap.registerPlugin(
-		Flip,
-		ScrollTrigger,
-		MotionPathPlugin,
-		SplitText,
-		Draggable,
-		InertiaPlugin
+	  gsap.Flip,
+	  gsap.ScrollTrigger,
+	  gsap.MotionPathPlugin,
+	  gsap.SplitText,
+	  gsap.Draggable,
+	  gsap.InertiaPlugin
 	)
 
 	// Обработчик события загрузки
