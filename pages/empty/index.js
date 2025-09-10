@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } = Matter;
 
   const engine = Engine.create();
-  engine.gravity.y = 30;
+  engine.gravity.y = 1;
   const world = engine.world;
 
   const canvasWrapper = document.getElementById('canvas_wrapper2');
