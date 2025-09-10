@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', event => {
 	  gsap.Draggable,
 	  gsap.InertiaPlugin
 	)
+	
 
 	// Обработчик события загрузки
 	document.onreadystatechange = function () {
