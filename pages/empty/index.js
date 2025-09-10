@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } = Matter;
 
   const engine = Engine.create();
-  engine.gravity.y = 1;
+  engine.gravity.y = 0.2; // слабая гравитация для эффекта невесомости
   const world = engine.world;
 
   const canvasWrapper = document.getElementById('canvas_wrapper2');
@@ -58,16 +58,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const y = Math.random() * (wrapperRect.height - rect.height) + rect.height / 2;
 
     const body = Bodies.rectangle(x, y, rect.width, rect.height, {
-      restitution: 0.4,
-      friction: 0.1,
-      frictionAir: 0.01,
+      restitution: 0.8,      // сильнее отскок
+      friction: 0.02,        // почти нет трения
+      frictionAir: 0.05,     // лёгкое сопротивление воздуха
       chamfer: { radius: 10 },
       render: { fillStyle: 'transparent' },
     });
 
-    const vx = (Math.random() - 0.5) * 10;
-    const vy = Math.random() * 10 + 2;
+    // более мягкие стартовые скорости
+    const vx = (Math.random() - 0.5) * 2;
+    const vy = (Math.random() - 0.5) * 2;
     Body.setVelocity(body, { x: vx, y: vy });
+
+    // добавить лёгкое начальное вращение
+    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.02);
 
     World.add(world, body);
     bodies.push(body);
@@ -87,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const mouse = Mouse.create(render.canvas);
   const mouseConstraint = MouseConstraint.create(engine, {
     mouse: mouse,
-    constraint: { stiffness: 0.2, render: { visible: false } },
+    constraint: { stiffness: 0.1, render: { visible: false } },
   });
   World.add(world, mouseConstraint);
   render.mouse = mouse;
