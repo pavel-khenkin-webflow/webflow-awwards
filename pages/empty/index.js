@@ -13,14 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const engine = Engine.create();
 
-  engine.world.gravity.y = 0;   
-  engine.world.gravity.x = 0; 
-  engine.world.gravity.scale = 0.0008;
+  // Невесомость
+  engine.world.gravity.y = 0;
+  engine.world.gravity.x = 0;
 
   const world = engine.world;
 
   const canvasWrapper = document.getElementById('canvas_wrapper2');
-  canvasWrapper.style.position = 'relative';
+  canvasWrapper.style.position = 'relative'; // чтобы абсолютные элементы позиционировались
 
   const render = Render.create({
     element: canvasWrapper,
@@ -66,30 +66,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const y = Math.random() * (wrapperRect.height - rect.height) + rect.height / 2;
 
     const body = Bodies.rectangle(x, y, rect.width, rect.height, {
-      restitution: 0.9,     // упругие столкновения — эффект "космоса"
-      friction: 0,          // без трения о поверхности
+      restitution: 0.9,     // упругие столкновения
+      friction: 0,
       frictionStatic: 0,
-      frictionAir: 5,    // лёгкое сопротивление воздуха — плавность
+      frictionAir: 0.02,    // лёгкое сопротивление воздуха
       chamfer: { radius: 10 },
       render: { fillStyle: 'transparent' },
     });
 
-    // мягкие стартовые скорости (не вниз)
-    const vx = (Math.random() - 0.01) * 1.2;
-    const vy = (Math.random() - 0.01) * 1.2;
+    // небольшие стартовые скорости
+    const vx = (Math.random() - 0.5) * 2;
+    const vy = (Math.random() - 0.5) * 2;
     Body.setVelocity(body, { x: vx, y: vy });
 
-    // лёгкое начальное вращение
-    Body.setAngularVelocity(body, (Math.random() - 0.01) * 0.02);
+    // лёгкое вращение
+    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.02);
 
     World.add(world, body);
     bodies.push(body);
   });
 
-  // плавный "дрейф" — микросилы по синусам
+  // плавный дрейф — микросилы
   Events.on(engine, 'beforeUpdate', (event) => {
     const t = event.timestamp * 0.001; // секунды
-    const base = 0.00002;              // сила дрейфа; при необходимости подстрой
+    const base = 0.00002;
 
     bodies.forEach((b, i) => {
       const fx = Math.sin(t + i * 0.7) * base * b.mass;
@@ -98,19 +98,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // редкие "подталкивания", чтобы не залипали
-  const nudge = () => {
-    bodies.forEach((b) => {
+  // редкие «подталкивания»
+  setInterval(() => {
+    bodies.forEach(b => {
       const f = 0.00008 * b.mass;
       Body.applyForce(b, b.position, {
         x: (Math.random() - 0.5) * f,
         y: (Math.random() - 0.5) * f,
       });
     });
-  };
-  setInterval(nudge, 2800 + Math.random() * 1200);
+  }, 3000);
 
-  // обновление позиций DOM-элементов под физику
+  // обновление позиций DOM-элементов
   Events.on(engine, 'afterUpdate', () => {
     elements.forEach((element, i) => {
       const body = bodies[i];
@@ -129,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
   World.add(world, mouseConstraint);
   render.mouse = mouse;
 
-  // (опционально) адаптация к ресайзу
+  // адаптация к ресайзу
   window.addEventListener('resize', () => {
     render.canvas.width = canvasWrapper.offsetWidth;
     render.canvas.height = canvasWrapper.offsetHeight;
