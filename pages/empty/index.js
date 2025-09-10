@@ -69,14 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
       restitution: 0.9,     // упругие столкновения — эффект "космоса"
       friction: 0,          // без трения о поверхности
       frictionStatic: 0,
-      frictionAir: 0.05,    // лёгкое сопротивление воздуха — плавность
+      frictionAir: 1,    // лёгкое сопротивление воздуха — плавность
       chamfer: { radius: 10 },
       render: { fillStyle: 'transparent' },
     });
 
     // мягкие стартовые скорости (не вниз)
-    const vx = (Math.random() - 0.25) * 1.2;
-    const vy = (Math.random() - 0.25) * 1.2;
+    const vx = (Math.random() - 0.5) * 1.2;
+    const vy = (Math.random() - 0.5) * 1.2;
     Body.setVelocity(body, { x: vx, y: vy });
 
     // лёгкое начальное вращение
