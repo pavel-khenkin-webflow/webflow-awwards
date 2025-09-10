@@ -1,87 +1,94 @@
-// index.js — версия для прода
+document.addEventListener('DOMContentLoaded', () => {
+  const {
+    Engine,
+    Render,
+    Runner,
+    Bodies,
+    Body,
+    World,
+    Mouse,
+    MouseConstraint,
+    Events,
+  } = Matter;
 
-// Подключаем Matter.js
-const {
-  Engine,
-  Render,
-  Runner,
-  World,
-  Bodies,
-  Body,
-  Events
-} = Matter;
-
-// Получаем wrapper и элементы кнопок
-const wrapper = document.getElementById('error-canvas_wrapper');
-const elements = document.querySelectorAll('.canvas-btn_white');
-
-if (wrapper && elements.length > 0) {
   const engine = Engine.create();
+  engine.gravity.y = 10;
   const world = engine.world;
 
-  // Создаём канвас поверх wrapper
+  const canvasWrapper = document.getElementById('canvas_wrapper2');
   const render = Render.create({
-    element: wrapper,
+    element: canvasWrapper,
     engine: engine,
     options: {
-      width: wrapper.offsetWidth,
-      height: wrapper.offsetHeight,
+      width: canvasWrapper.offsetWidth,
+      height: canvasWrapper.offsetHeight,
       wireframes: false,
-      background: 'transparent'
-    }
+      background: 'transparent',
+    },
   });
 
   Render.run(render);
   const runner = Runner.create();
   Runner.run(runner, engine);
 
-  // Добавляем стены, чтобы блоки не выпадали
+  // стены
   const walls = [
-    Bodies.rectangle(wrapper.offsetWidth / 2, wrapper.offsetHeight + 25, wrapper.offsetWidth, 50, { isStatic: true }),
-    Bodies.rectangle(-25, wrapper.offsetHeight / 2, 50, wrapper.offsetHeight, { isStatic: true }),
-    Bodies.rectangle(wrapper.offsetWidth + 25, wrapper.offsetHeight / 2, 50, wrapper.offsetHeight, { isStatic: true })
+    Bodies.rectangle(canvasWrapper.offsetWidth / 2, -50, canvasWrapper.offsetWidth, 100, { isStatic: true }),
+    Bodies.rectangle(canvasWrapper.offsetWidth / 2, canvasWrapper.offsetHeight + 50, canvasWrapper.offsetWidth, 100, { isStatic: true }),
+    Bodies.rectangle(-50, canvasWrapper.offsetHeight / 2, 100, canvasWrapper.offsetHeight, { isStatic: true }),
+    Bodies.rectangle(canvasWrapper.offsetWidth + 50, canvasWrapper.offsetHeight / 2, 100, canvasWrapper.offsetHeight, { isStatic: true }),
   ];
   World.add(world, walls);
 
-  // Переносим .canvas-btn_white в Matter.js как падающие блоки
-  elements.forEach(el => {
-    const rect = el.getBoundingClientRect();
-    const w = rect.width || 150;
-    const h = rect.height || 50;
+  // элементы
+  const elements = document.querySelectorAll('.canvas-btn2');
+  const wrapperRect = canvasWrapper.getBoundingClientRect();
+  const bodies = [];
 
-    // Создаём физическое тело
-    const body = Bodies.rectangle(
-      Math.random() * wrapper.offsetWidth, // случайная X позиция
-      -100, // начинаем сверху
-      w,
-      h,
-      {
-        restitution: 0.5, // упругость
-        render: {
-          fillStyle: '#fff'
-        }
-      }
-    );
+  elements.forEach(element => {
+    const rect = element.getBoundingClientRect();
 
-    // Прикрепляем DOM к body (опционально для синхронизации)
-    el.style.position = 'absolute';
-    el.style.left = '0px';
-    el.style.top = '0px';
+    element.style.width = `${rect.width}px`;
+    element.style.height = `${rect.height}px`;
+    element.style.position = 'absolute';
+    element.style.pointerEvents = 'none';
+    element.style.transformOrigin = 'center center';
 
-    Body.setVelocity(body, { x: (Math.random() - 0.5) * 5, y: 0 });
+    const x = Math.random() * (wrapperRect.width - rect.width) + rect.width / 2;
+    const y = Math.random() * (wrapperRect.height - rect.height) + rect.height / 2;
+
+    const body = Bodies.rectangle(x, y, rect.width, rect.height, {
+      restitution: 0.4,
+      friction: 0.1,
+      frictionAir: 0.01,
+      chamfer: { radius: 10 },
+      render: { fillStyle: 'transparent' },
+    });
+
+    const vx = (Math.random() - 0.5) * 10;
+    const vy = Math.random() * 10 + 2;
+    Body.setVelocity(body, { x: vx, y: vy });
+
     World.add(world, body);
+    bodies.push(body);
+  });
 
-    // Синхронизируем DOM-элемент с Matter.js телом
-    Events.on(engine, 'afterUpdate', () => {
-      el.style.transform = `translate(${body.position.x - w / 2}px, ${body.position.y - h / 2}px) rotate(${body.angle}rad)`;
+  // обновление позиций
+  Events.on(engine, 'afterUpdate', () => {
+    elements.forEach((element, i) => {
+      const body = bodies[i];
+      element.style.left = `${body.position.x}px`;
+      element.style.top = `${body.position.y}px`;
+      element.style.transform = `translate(-50%, -50%) rotate(${body.angle}rad)`;
     });
   });
 
-  // Автоматический ресайз
-  window.addEventListener('resize', () => {
-    Render.lookAt(render, {
-      min: { x: 0, y: 0 },
-      max: { x: wrapper.offsetWidth, y: wrapper.offsetHeight }
-    });
+  // мышь для интерактивности
+  const mouse = Mouse.create(render.canvas);
+  const mouseConstraint = MouseConstraint.create(engine, {
+    mouse: mouse,
+    constraint: { stiffness: 0.2, render: { visible: false } },
   });
-}
+  World.add(world, mouseConstraint);
+  render.mouse = mouse;
+});
