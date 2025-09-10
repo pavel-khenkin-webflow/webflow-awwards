@@ -13,14 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const engine = Engine.create();
 
-  // Невесомость
+  // Полностью убираем гравитацию
   engine.world.gravity.y = 0;
   engine.world.gravity.x = 0;
+  engine.world.gravity.scale = 0;
 
   const world = engine.world;
 
   const canvasWrapper = document.getElementById('canvas_wrapper2');
-  canvasWrapper.style.position = 'relative'; // чтобы абсолютные элементы позиционировались
+  canvasWrapper.style.position = 'relative';
 
   const render = Render.create({
     element: canvasWrapper,
@@ -69,26 +70,26 @@ document.addEventListener('DOMContentLoaded', () => {
       restitution: 0.9,     // упругие столкновения
       friction: 0,
       frictionStatic: 0,
-      frictionAir: 0.02,    // лёгкое сопротивление воздуха
+      frictionAir: 0.03,    // лёгкое сопротивление воздуха
       chamfer: { radius: 10 },
       render: { fillStyle: 'transparent' },
     });
 
-    // небольшие стартовые скорости
-    const vx = (Math.random() - 0.5) * 2;
-    const vy = (Math.random() - 0.5) * 2;
+    // очень маленькие стартовые скорости
+    const vx = (Math.random() - 0.5) * 0.5;
+    const vy = (Math.random() - 0.5) * 0.5;
     Body.setVelocity(body, { x: vx, y: vy });
 
     // лёгкое вращение
-    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.02);
+    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.01);
 
     World.add(world, body);
     bodies.push(body);
   });
 
-  // плавный дрейф — микросилы
+  // мягкий дрейф (синусоидальные силы)
   Events.on(engine, 'beforeUpdate', (event) => {
-    const t = event.timestamp * 0.001; // секунды
+    const t = event.timestamp * 0.001;
     const base = 0.00002;
 
     bodies.forEach((b, i) => {
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // редкие «подталкивания»
+  // редкие подталкивания
   setInterval(() => {
     bodies.forEach(b => {
       const f = 0.00008 * b.mass;
