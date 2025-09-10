@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } = Matter;
 
   const engine = Engine.create();
-  engine.gravity.y = 10;
+  engine.gravity.y = 30;
   const world = engine.world;
 
   const canvasWrapper = document.getElementById('canvas_wrapper2');
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   World.add(world, walls);
 
   // элементы
-  const elements = document.querySelectorAll('.canvas-btn_white');
+  const elements = document.querySelectorAll('.canvas-btn2');
   const wrapperRect = canvasWrapper.getBoundingClientRect();
   const bodies = [];
 
