@@ -23,16 +23,15 @@ document.addEventListener('DOMContentLoaded', event => {
 	}
 
 	duringLoading()
-
-	gsap.registerPlugin(
-	  gsap.Flip,
-	  gsap.ScrollTrigger,
-	  gsap.MotionPathPlugin,
-	  gsap.SplitText,
-	  gsap.Draggable,
-	  gsap.InertiaPlugin
-	)
 	
+	gsap.registerPlugin(
+	  Flip,
+	  ScrollTrigger,
+	  MotionPathPlugin,
+	  SplitText,
+	  Draggable,
+	  InertiaPlugin
+	);
 
 	// Обработчик события загрузки
 	document.onreadystatechange = function () {
