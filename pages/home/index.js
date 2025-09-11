@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', event => {
 			duringLoading()
 		} else if (document.readyState === 'complete') {
 			const preloader = document.querySelector('.preloader')
-			
+			gsap.registerPlugin(TextPlugin)
 
 			gsap.to(preloader, {
 				opacity: 0,
