@@ -39,16 +39,17 @@ document.addEventListener('DOMContentLoaded', event => {
 
 			// Hero load animate
 
-			var splitH1Hero = new SplitText('[animate="text-h1"]', {
-				type: 'words, chars',
-			})
-			//now animate each character into place from 100px above, fading in:
-			gsap.from(splitH1Hero.chars, {
-				duration: 0.4,
-				y: 100,
-				autoAlpha: 0,
-				stagger: 0.02,
-			})
+			document.fonts.ready.then(() => {
+			    var splitH1Hero = new SplitText('[animate="text-h1"]', {
+			        type: 'words, chars',
+			    });
+			    gsap.from(splitH1Hero.chars, {
+			        duration: 0.4,
+			        y: 100,
+			        autoAlpha: 0,
+			        stagger: 0.02,
+			    });
+			});
 			let heroTimeLine = gsap.timeline({})
 			heroTimeLine.from(
 				'[gapsy-animate="hero-text"]',
@@ -178,8 +179,11 @@ document.addEventListener('DOMContentLoaded', event => {
 				tempElement.innerHTML = text
 				document.body.appendChild(tempElement)
 
-				const splitTextInstance = new SplitText(tempElement, { type: 'words' })
-				const words = splitTextInstance.words.map(word => word.textContent)
+				let words = [];
+				document.fonts.ready.then(() => {
+				    const splitTextInstance = new SplitText(tempElement, { type: 'words' });
+				    words = splitTextInstance.words.map(word => word.textContent);
+				});
 
 				document.body.removeChild(tempElement) // Удаляем временный элемент
 
@@ -336,7 +340,10 @@ document.addEventListener('DOMContentLoaded', event => {
 			function resetSubtitles() {
 				if (subtitles.length === 0) {
 					const placeholderText = subtitlesText.placeholder
-					const wordPairs = splitTextIntoWordPairs(placeholderText)
+					let wordPairs = [];
+document.fonts.ready.then(() => {
+    wordPairs = splitTextIntoWordPairs(placeholderText);
+});
 					const wordInterval = video.duration / wordPairs.length
 					wordPairs.forEach((pair, index) => {
 						const start = index * wordInterval
