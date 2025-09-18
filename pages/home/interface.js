@@ -1,6 +1,6 @@
-export function initializeVolumeSlider(thumb, container, display) {
+function initializeVolumeSlider(thumb, container, display) {
 	const maxVolume = 200 // Maximum volume percentage
-	const steps = 10 // Number of steps: 0%, 20%, 40%, 60%, 80%, 100%, 120%, 140%, 160%, 180%, 200%
+	const steps = 10 // Number of steps
 	const thumbWidth = thumb.offsetWidth
 
 	thumb.addEventListener('mousedown', function (event) {
@@ -44,3 +44,5 @@ export function initializeVolumeSlider(thumb, container, display) {
 		return false
 	}
 }
+
+window.initializeVolumeSlider = initializeVolumeSlider;
