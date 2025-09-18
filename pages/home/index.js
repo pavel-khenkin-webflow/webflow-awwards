@@ -1,6 +1,3 @@
-import { initializeVolumeSlider } from './interface.js'
-import { initializeCardHoverEffect } from './slider-team.js'
-
 document.addEventListener('DOMContentLoaded', event => {
 	const isMobile = window.innerWidth <= 478;
 
