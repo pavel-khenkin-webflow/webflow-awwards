@@ -1,5 +1,5 @@
-export function initializeCardHoverEffect(cardClass, textClass) {
-	const cards = document.querySelectorAll(cardClass)
+function initializeCardHoverEffect(cardClass, textClass) {
+    const cards = document.querySelectorAll(cardClass)
 
 	cards.forEach((card) => {
 		const text = card.querySelector(textClass)
@@ -25,3 +25,4 @@ export function initializeCardHoverEffect(cardClass, textClass) {
 		})
 	})
 }
+window.initializeCardHoverEffect = initializeCardHoverEffect;
