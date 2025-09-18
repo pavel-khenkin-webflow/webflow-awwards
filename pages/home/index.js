@@ -1,4 +1,3 @@
-import { setupResizeListener } from '../utility/run-line.js'
 import { initializeVolumeSlider } from './interface.js'
 import { initializeCardHoverEffect } from './slider-team.js'
 
